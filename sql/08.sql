@@ -18,3 +18,39 @@
  *    Ensure that you are not counting a customer that has rented a movie twice as 2 separate customers renting the movie.
  *    I did this by using the SELECT DISTINCT clause.
  */
+SELECT
+    title
+FROM (
+    SELECT
+        title,
+        count(customer_id)
+    FROM film
+    INNER JOIN inventory USING (film_id)
+    INNER JOIN rental USING (inventory_id)
+    WHERE customer_id IN (
+        SELECT DISTINCT --I don't understand why this distinct does not work. I can tell that film_id 181 was rented 2 by the same customer
+            customer_id
+        FROM rental
+        INNER JOIN inventory USING (inventory_id)
+        INNER JOIN film USING (film_id)
+        WHERE film_id IN (
+            SELECT
+                film_id
+            FROM film
+            WHERE title = 'BUCKET BROTHERHOOD'
+        )
+       
+    )
+    GROUP BY title
+) AS p
+WHERE count >= 3 AND title != 'BUCKET BROTHERHOOD' AND title != 'CONTACT ANONYMOUS'
+ORDER BY title
+;
+/*
+SELECT
+    customer_id
+FROM rental
+INNER JOIN inventory USING (inventory_id)
+INNER JOIN film USING (film_id)
+WHERE film_id=181;
+*/
